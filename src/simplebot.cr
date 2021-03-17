@@ -71,6 +71,8 @@ module SimpleBot
 
     def self.ready
     end
+    def self.interupt
+    end
 
     def self.sendError(err : Exception|String, author : Discord::User, channel : Discord::Snowflake, content : String = "")
         owner = checkIfOwner author.id
@@ -91,6 +93,7 @@ module SimpleBot
     end
 
     private def safeHalt
+        SimpleBot.interupt
         CLIENT.stop
         Log.info { "Halt" }
         spawn do
