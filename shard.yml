@@ -1,0 +1,14 @@
+name: simplebot
+version: 0.1.0
+
+authors:
+  - Bartłomiej Skoczeń <bartek_skoczen@protonmail.com>
+
+crystal: 0.36.1
+
+dependencies:
+  discordcr:
+    github: MineBartekSA/discordcr
+    branch: cr-0.35
+
+license: MIT
