@@ -45,7 +45,7 @@ module SimpleBot
         next if !(payload.content.starts_with? PREFIX)
         COMMANDS.each do |command|
             fullCommand = "#{PREFIX}#{command.command}"
-            next if !payload.content.starts_with? fullCommand
+            next if !payload.content.starts_with? "#{fullCommand} "
             Log.info { "Got: #{fullCommand}" }
             if !command.permissions.check payload.author, payload.member.not_nil!
                 CLIENT.create_message payload.channel_id, "⛔ You don't have enough permissions to use this command!"
