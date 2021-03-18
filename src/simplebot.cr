@@ -45,14 +45,15 @@ module SimpleBot
         next if !(payload.content.starts_with? PREFIX)
         COMMANDS.each do |command|
             fullCommand = "#{PREFIX}#{command.command}"
-            next if !payload.content.starts_with? "#{fullCommand} "
+            content = payload.content.split " "
+            next if content[0] != fullCommand
             Log.info { "Got: #{fullCommand}" }
             if !command.permissions.check payload.author, payload.member.not_nil!
                 CLIENT.create_message payload.channel_id, "⛔ You don't have enough permissions to use this command!"
                 next
             end
             begin
-                command.execute payload, payload.content.size > fullCommand.size ? payload.content[(fullCommand.size + 1)..-1].split(" ") : Array(String).new
+                command.execute payload, content.size > 1 ? content[1..] : Array(String).new
             rescue err
                 sendError err, payload.author, payload.channel_id, "‼️ Failed to execute command `#{command.command}`! ‼️"
                 Log.error(exception: err) { "An error occurred while trying to process command: '#{fullCommand}'" }
