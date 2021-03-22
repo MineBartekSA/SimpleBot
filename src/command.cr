@@ -3,7 +3,9 @@ class SimpleBot::Command
 
     @@instance : self?
     getter command : String
+    getter id : UInt32
     def initialize(@command)
+        @id = COMMANDS.size.to_u
         @@instance = self
     end
 
@@ -20,6 +22,15 @@ class SimpleBot::Command
     end
     def execute(message : Discord::Message, args : Array(String))
         raise Exception.new "#{self.class.name} does not implement execution!"
+    end
+    def on_reaction(payload : Discord::Gateway::MessageReactionPayload) : Bool
+        false
+    end
+    def on_next_message(message : Discord::Message, data : String)
+    end
+
+    def next_message(channel : Discord::Snowflake, user : Discord::Snowflake, data = "")
+        NML[channel.value] = NextMessageInfo.new user, @id, data
     end
 
     macro inherited

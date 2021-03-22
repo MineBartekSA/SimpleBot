@@ -21,6 +21,7 @@ module SimpleBot
     CLIENT.cache = CACHE
 
     COMMANDS = Array(SimpleBot::Command).new
+    NML = Hash(UInt64, NextMessageInfo).new
 
     CLIENT.on_ready do
         COMMANDS.each do |com|
@@ -42,6 +43,13 @@ module SimpleBot
             end
             next
         end
+        if (n = NML[payload.channel_id.value]?)
+            if payload.author && payload.author.id == n.user
+                COMMANDS[n.cid].on_next_message payload, n.data
+                NML.delete payload.channel_id.value
+                next
+            end
+        end
         next if !(payload.content.starts_with? PREFIX)
         COMMANDS.each do |command|
             fullCommand = "#{PREFIX}#{command.command}"
@@ -59,6 +67,12 @@ module SimpleBot
                 Log.error(exception: err) { "An error occurred while trying to process command: '#{fullCommand}'" }
             end
             break
+        end
+    end
+
+    CLIENT.on_message_reaction_add do |payload|
+        COMMANDS.each do |command|
+            break if command.on_reaction payload # TODO: Rethink
         end
     end
 
@@ -100,6 +114,12 @@ module SimpleBot
         spawn do
             sleep 5
             exit
+        end
+    end
+
+    struct NextMessageInfo
+        property user, cid, data
+        def initialize(@user : Discord::Snowflake, @cid : UInt32, @data = "")
         end
     end
 end
