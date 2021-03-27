@@ -37,6 +37,7 @@ module SimpleBot
 
     CLIENT.on_message_create do |payload|
         next if !(payload.author.bot || true)
+        next if self.on_message(payload) === true
         if payload.content == "<@#{CLIENT.client_id}>" || payload.content == "<@!#{CLIENT.client_id}>"
             if PING_MESSAGE != ""
                 CLIENT.create_message payload.channel_id, PING_MESSAGE
@@ -85,6 +86,8 @@ module SimpleBot
     end
 
     def self.ready
+    end
+    def self.on_message(payload)
     end
     def self.interupt
     end
