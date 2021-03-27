@@ -62,7 +62,7 @@ module SimpleBot
             next if content[0] != fullCommand
             Log.info { "Got: #{fullCommand}" } # TODO: Change to debug
             break if command.flags & Command::Flag::NoDM == Command::Flag::NoDM && CACHE.resolve_channel(payload.channel_id).type != Discord::ChannelType::GuildText
-            if command.flags & Command::Flag::NSFW == Command::Flag::NSFW && !CACHE.resolve_channel(payload.channel_id).nsfw
+            if command.flags & Command::Flag::NSFW == Command::Flag::NSFW && (!(ch = CACHE.resolve_channel(payload.channel_id)).nsfw && ch.type == Discord::ChannelType::GuildText)
                 CLIENT.create_message payload.channel_id, NSFW_MESSAGE
                 break
             end
