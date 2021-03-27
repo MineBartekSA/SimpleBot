@@ -2,10 +2,14 @@ require "discordcr"
 require "log"
 require "./**"
 
-{% for const in ["PREFIX", "OWNER", "PING_MESSAGE"] %}
+{% for const in ["PREFIX", "OWNER", "PING_MESSAGE", "NSFW_MESSAGE", "PERMISSION_MESSAGE"] %}
     {% if !@type.has_constant? const %}
         {% if const == "PREFIX" %}
             {{ const.id }} = "!"
+        {% elsif const == "NSFW_MESSAGE" %}
+            {{ const.id }} = "⛔ This command can only be run in a NSFW channel!"
+        {% elsif const == "PERMISSION_MESSAGE" %}
+            {{ const.id }} = "⛔ You don't have enough permissions to use this command!"
         {% else %}
             {{ const.id }} = ""
         {% end %}
@@ -56,10 +60,15 @@ module SimpleBot
             fullCommand = "#{PREFIX}#{command.command}"
             content = payload.content.split " "
             next if content[0] != fullCommand
-            Log.info { "Got: #{fullCommand}" }
+            Log.info { "Got: #{fullCommand}" } # TODO: Change to debug
+            break if command.flags & Command::Flag::NoDM == Command::Flag::NoDM && CACHE.resolve_channel(payload.channel_id).type != Discod::ChannelType::GuildText
+            if command.flags & Command::Flag::NSFW == Command::Flag::NSFW && !CACHE.resolve_channel(payload.channel_id).nsfw
+                CLIENT.create_message payload.channel_id, NSFW_MESSAGE
+                break
+            end
             if !command.permissions.check payload.author, payload.member.not_nil!
-                CLIENT.create_message payload.channel_id, "⛔ You don't have enough permissions to use this command!"
-                next
+                CLIENT.create_message payload.channel_id, PERMISSION_MESSAGE
+                break
             end
             begin
                 command.execute payload, content.size > 1 ? content[1..] : Array(String).new

@@ -18,6 +18,9 @@ class SimpleBot::Command
     def permissions : Permission
         Permission.new public: true
     end
+    def flags : Flag
+        Flag::None
+    end
     def ready
     end
     def execute(message : Discord::Message, args : Array(String))
@@ -37,8 +40,16 @@ class SimpleBot::Command
         Log = ::Log.for self
         name = self.name.split("::")[-1]
         COMMANDS << self.new "#{name[0].downcase}#{name[1..]}"
+        COMMANDS.delete COMMANDS[-1] if COMMANDS[-1].flags & Flag::Debug == Flag::Debug && {{ flag?(:release) ? true.id : false.id }}
         def self.instance : self
             @@instance.not_nil!.as self
         end
+    end
+
+    @[Flags]
+    enum Flag
+        NSFW
+        NoDM
+        Debug
     end
 end
