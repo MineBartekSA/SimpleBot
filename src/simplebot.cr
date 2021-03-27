@@ -66,7 +66,7 @@ module SimpleBot
                 CLIENT.create_message payload.channel_id, NSFW_MESSAGE
                 break
             end
-            if !command.permissions.check payload.author, payload.member.not_nil!
+            if !command.permissions.check payload.author, payload.member
                 CLIENT.create_message payload.channel_id, PERMISSION_MESSAGE
                 break
             end
