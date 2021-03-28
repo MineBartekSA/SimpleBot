@@ -26,6 +26,7 @@ module SimpleBot
 
     COMMANDS = Array(SimpleBot::Command).new
     NML = Hash(UInt64, NextMessageInfo).new
+    NMLM = Mutex.new
 
     CLIENT.on_ready do
         COMMANDS.each do |com|
@@ -48,11 +49,13 @@ module SimpleBot
             end
             next
         end
-        if (n = NML[payload.channel_id.value]?)
-            if payload.author && payload.author.id == n.user
-                COMMANDS[n.cid].on_next_message payload, n.data
-                NML.delete payload.channel_id.value
-                next
+        NMLM.synchronize do
+            if (n = NML[payload.channel_id.value]?)
+                if payload.author && payload.author.id == n.user
+                    COMMANDS[n.cid].on_next_message payload, n.data
+                    NML.delete payload.channel_id.value
+                    next
+                end
             end
         end
         next if !(payload.content.starts_with? PREFIX)
