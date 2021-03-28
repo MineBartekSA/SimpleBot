@@ -32,11 +32,11 @@ class SimpleBot::Command
     def on_next_message(message : Discord::Message, data : String)
     end
 
-    def next_message(channel : Discord::Snowflake, user : Discord::Snowflake, data = "", timeout : Float = 0_f32)
+    def next_message(channel : Discord::Snowflake, user : Discord::Snowflake, data = "", timeout = nil)
         NMLM.synchronize { NML[channel.value] = NextMessageInfo.new user, @id, data }
-        if timeout != 0
+        if !timeout.nil?
             spawn do
-                sleep timeout
+                sleep timeout.not_nil!
                 NMLM.synchronize { NML.delete channel.value if NML.has_key? channel.value }
             end
         end
