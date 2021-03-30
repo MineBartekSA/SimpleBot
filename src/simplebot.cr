@@ -52,7 +52,12 @@ module SimpleBot
         NMLM.synchronize do
             if (n = NML[payload.channel_id.value]?)
                 if payload.author && payload.author.id == n.user
-                    COMMANDS[n.cid].on_next_message payload, n.data
+                    begin
+                        COMMANDS[n.cid].on_next_message payload, n.data
+                    rescue err
+                        sendError err, payload.author, payload.channel_id, "‼️ Failed to execute OnNextMessage! ‼️"
+                        Log.error(exception: err) { "An error occurred while trying to process onNextMessage event with: '#{n.data}'" }
+                    end
                     NML.delete payload.channel_id.value
                     next
                 end
