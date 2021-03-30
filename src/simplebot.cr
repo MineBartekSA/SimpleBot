@@ -85,7 +85,13 @@ module SimpleBot
 
     CLIENT.on_message_reaction_add do |payload|
         COMMANDS.each do |command|
-            break if command.on_reaction payload # TODO: Rethink
+            begin
+                break if command.on_reaction payload # TODO: Rethink
+            rescue err
+                sendError err, CACHE.resolve_user(payload.user_id), payload.channel_id, "‼️ Failed to execute OnReaction event for `#{command.command}`! ‼️"
+                Log.error(exception: err) { "An error occurred while trying to process reaction for command: '#{command.command}'" }
+                break
+            end
         end
     end
 
