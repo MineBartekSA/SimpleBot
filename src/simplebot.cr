@@ -55,21 +55,22 @@ module SimpleBot
             end
             next
         end
-        NMLM.synchronize do
-            if (n = NML[payload.channel_id.value]?)
-                if payload.author && payload.author.id == n.user
-                    begin
-                        COMMANDS[n.cid].on_next_message payload, n.data
-                    rescue err
-                        sendError err, payload.author, payload.channel_id, "‼️ Failed to execute OnNextMessage! ‼️"
-                        Log.error(exception: err) { "An error occurred while trying to process onNextMessage event with: '#{n.data}'" }
+        if !(payload.content.starts_with? PREFIX)
+            NMLM.synchronize do
+                if (n = NML[payload.channel_id.value]?)
+                    if payload.author && payload.author.id == n.user
+                        begin
+                            next if COMMANDS[n.cid].on_next_message(payload, n.data) == true
+                        rescue err
+                            sendError err, payload.author, payload.channel_id, "‼️ Failed to execute OnNextMessage! ‼️"
+                            Log.error(exception: err) { "An error occurred while trying to process onNextMessage event with: '#{n.data}'" }
+                        end
+                        NML.delete payload.channel_id.value
                     end
-                    NML.delete payload.channel_id.value
-                    next
                 end
             end
+            next
         end
-        next if !(payload.content.starts_with? PREFIX)
         COMMANDS.each do |command|
             fullCommand = "#{PREFIX}#{command.command}"
             content = payload.content.split " "
