@@ -2,7 +2,7 @@ require "discordcr"
 require "log"
 require "./**"
 
-{% for const in ["PREFIX", "OWNER", "PING_MESSAGE", "NSFW_MESSAGE", "PERMISSION_MESSAGE"] %}
+{% for const in ["PREFIX", "OWNER", "WEBHOOK", "PING_MESSAGE", "NSFW_MESSAGE", "PERMISSION_MESSAGE"] %}
     {% if !@type.has_constant? const %}
         {% if const == "PREFIX" %}
             {{ const.id }} = "!"
@@ -41,7 +41,7 @@ module SimpleBot
     end
 
     CLIENT.on_message_create do |payload|
-        next if !(payload.author.bot || true)
+        next if (payload.webhook_id.nil? ? (payload.author.bot || false) : !checkIfWebhook(payload.webhook_id.not_nil!))
         begin
             next if self.on_message(payload) === true
         rescue err
@@ -128,17 +128,19 @@ module SimpleBot
         CLIENT.create_message channel, "#{content.size != 0 ? "\n#{content}" : "Error!"}#{owner ? "\n```\n#{errMsg.size > 1500 ? "#{errMsg[..1500]}\n..." : errMsg}\n```" : ""}"
     end
 
-    def self.checkIfOwner(id : Discord::Snowflake) : Bool
-        {% if OWNER.class_name == "ArrayLiteral" %}
-            i = id.to_s
-            OWNER.each do |owner|
-                return true if i == owner
-            end
-            false
-        {% else %}
-            id.to_s == OWNER
-        {% end %}
-    end
+    {% for const in ["OWNER", "WEBHOOK"] %}
+        def self.checkIf{{ const.id.capitalize }}(id : Discord::Snowflake) : Bool
+            {% if @type.constant(const).class_name == "ArrayLiteral" %}
+                i = id.to_s
+                {{ const.id }}.each do |v|
+                    return true if i == v
+                end
+                false
+            {% else %}
+                id.to_s == {{ const.id }}
+            {% end %}
+        end
+    {% end %}
 
     private def safeHalt
         SimpleBot.interupt
