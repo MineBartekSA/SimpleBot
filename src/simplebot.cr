@@ -138,7 +138,6 @@ module SimpleBot
 
     def self.sendError(err : Exception|String, author : Discord::User, channel : Discord::Snowflake, content : String = "")
         owner = checkIfOwner author.id
-        Log.info { "Owner? #{owner.to_s.upcase}" }
         errMsg = err.is_a?(Exception) ? err.as(Exception).inspect_with_backtrace : err.as(String)
         CLIENT.create_message channel, "#{content.size != 0 ? "\n#{content}" : "Error!"}#{owner ? "\n```\n#{errMsg.size > 1500 ? "#{errMsg[..1500]}\n..." : errMsg}\n```" : ""}"
     end
