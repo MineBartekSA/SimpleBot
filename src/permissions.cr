@@ -14,7 +14,7 @@ struct SimpleBot::Permission
 
     def check(user : Discord::User, partial_member : Discord::PartialGuildMember?)
         if partial_member.nil?
-            owner = SimpleBot.checkIfOwner user.id
+            owner = checkIfOwner user.id
             return owner if @ownerOnly
             return true if owner
             return false if @disallowedUsers.not_nil!.includes? user.id if !@disallowedUsers.nil?
@@ -25,7 +25,7 @@ struct SimpleBot::Permission
     end
 
     def check(member : Discord::GuildMember) : Bool
-        owner = SimpleBot.checkIfOwner member.user.id
+        owner = checkIfOwner member.user.id
         return owner if @ownerOnly
         return true if owner
         return false if @disallowedUsers.not_nil!.includes? member.user.id if !@disallowedUsers.nil?

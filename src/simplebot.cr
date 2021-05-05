@@ -16,6 +16,20 @@ require "./**"
     {% end %}
 {% end %}
 
+{% for const in ["OWNER", "WEBHOOK"] %} # TODO: Try to have thin inside the module
+    def checkIf{{ const.id.capitalize }}(id : Discord::Snowflake) : Bool
+        {% if @type.constant(const).class_name == "ArrayLiteral" %}
+            i = id.to_s
+            {{ const.id }}.each do |v|
+                return true if i == v
+            end
+            false
+        {% else %}
+            id.to_s == {{ const.id }}
+        {% end %}
+    end
+{% end %}
+
 module SimpleBot
     Log = ::Log.for self
     VERSION = "0.1.0"
@@ -124,23 +138,10 @@ module SimpleBot
 
     def self.sendError(err : Exception|String, author : Discord::User, channel : Discord::Snowflake, content : String = "")
         owner = checkIfOwner author.id
+        Log.info { "Owner? #{owner.to_s.upcase}" }
         errMsg = err.is_a?(Exception) ? err.as(Exception).inspect_with_backtrace : err.as(String)
         CLIENT.create_message channel, "#{content.size != 0 ? "\n#{content}" : "Error!"}#{owner ? "\n```\n#{errMsg.size > 1500 ? "#{errMsg[..1500]}\n..." : errMsg}\n```" : ""}"
     end
-
-    {% for const in ["OWNER", "WEBHOOK"] %}
-        def self.checkIf{{ const.id.capitalize }}(id : Discord::Snowflake) : Bool
-            {% if @type.constant(const).class_name == "ArrayLiteral" %}
-                i = id.to_s
-                {{ const.id }}.each do |v|
-                    return true if i == v
-                end
-                false
-            {% else %}
-                id.to_s == {{ const.id }}
-            {% end %}
-        end
-    {% end %}
 
     private def safeHalt
         SimpleBot.interupt
