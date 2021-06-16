@@ -16,6 +16,10 @@ require "./**"
     {% end %}
 {% end %}
 
+{% unless @type.has_constant? "INTENTS" %}
+    INTENTS = Discord::Client::DEFAULT_INTENTS
+{% end %}
+
 {% for const in ["OWNER", "WEBHOOK"] %} # TODO: Try to have thin inside the module
     def checkIf{{ const.id.capitalize }}(id : Discord::Snowflake) : Bool
         {% if @type.constant(const).class_name == "ArrayLiteral" %}
@@ -34,7 +38,7 @@ module SimpleBot
     Log = ::Log.for self
     VERSION = "0.1.0"
 
-    CLIENT = Discord::Client.new "Bot #{TOKEN}"
+    CLIENT = Discord::Client.new "Bot #{TOKEN}", intents: INTENTS
     CACHE = Discord::Cache.new CLIENT
     CLIENT.cache = CACHE
 

@@ -8,7 +8,7 @@ crystal: 1.0
 
 dependencies:
   discordcr:
-    github: MineBartekSA/discordcr
-    branch: cr-0.35
+    github: MineBartekSA/discordcr-new
+    branch: v8-final
 
 license: MIT
