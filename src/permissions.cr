@@ -1,15 +1,20 @@
 struct SimpleBot::Permission
     include SimpleBot
-    property public, ownerOnly, allowedRoles, allowedUsers, disallowedRoles, disallowdUsers
 
-    def initialize(
-        @public : Bool = false,
-        @ownerOnly : Bool = false,
-        @allowedRoles : Array(Discord::Snowflake)? = nil,
-        @allowedUsers : Array(Discord::Snowflake)? = nil,
-        @disallowedUsers : Array(Discord::Snowflake)? = nil,
-        @disallowedRoles : Array(Discord::Snowflake)? = nil
-    )
+    # Makes command Public. Disallowed will only be checked
+    property public : Bool
+    # Makes command available only to the owner of the bot (if user is in OWNER constant)
+    property ownerOnly : Bool
+    # Roles allowed to use this command
+    property allowedRoles : Array(Discord::Snowflake)?
+    # Users allowed to use this command
+    property allowedUsers : Array(Discord::Snowflake)?
+    # Roles disallowed to use this command
+    property disallowedRoles : Array(Discord::Snowflake)?
+    # Users disallowed to use this command
+    property disallowdUsers : Array(Discord::Snowflake)?
+
+    def initialize(@public = false, @ownerOnly = false, @allowedRoles = nil, @allowedUsers = nil, @disallowedUsers = nil, @disallowedRoles = nil)
     end
 
     def check(user : Discord::User, partial_member : Discord::GuildMember?)

@@ -4,7 +4,7 @@ version: 0.1.0
 authors:
   - Bartłomiej Skoczeń <bartek_skoczen@protonmail.com>
 
-crystal: 1.0
+crystal: 1.2.1
 
 dependencies:
   discordcr:

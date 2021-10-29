@@ -125,6 +125,7 @@ module SimpleBot
         end
     end
 
+    # Start bot
     def start    
         Signal::INT.trap { safeHalt }
         Signal::TERM.trap { safeHalt }
