@@ -34,7 +34,7 @@ module YourBot
 end
 ```
 
-Classes inhereting the `SimpleBot::Command` class, must be placed before the start method.
+Classes inhereting the `SimpleBot::Command` class, must be placed before the invocation of the start method.
 
 ## Contributing
 
