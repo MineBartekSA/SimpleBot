@@ -12,7 +12,7 @@ struct SimpleBot::Permission
     # Roles disallowed to use this command
     property disallowedRoles : Array(Discord::Snowflake)?
     # Users disallowed to use this command
-    property disallowdUsers : Array(Discord::Snowflake)?
+    property disallowedUsers : Array(Discord::Snowflake)?
 
     def initialize(@public = false, @ownerOnly = false, @allowedRoles = nil, @allowedUsers = nil, @disallowedUsers = nil, @disallowedRoles = nil)
     end
