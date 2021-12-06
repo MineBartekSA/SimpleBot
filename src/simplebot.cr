@@ -131,7 +131,16 @@ module SimpleBot
         Signal::TERM.trap { safeHalt }
         
         Log.info { "Started bot with prefix '#{PREFIX}'" }
-        CLIENT.run
+        restart = true
+        while restart
+            restart = false
+            begin
+                CLIENT.run
+            rescue e : Socket::Addinfo::Error
+                Log.error(exception: e) { "Failed to lookup hostname! Retrying..." }
+                restart = true
+            end
+        end
     end
 
     def self.ready
