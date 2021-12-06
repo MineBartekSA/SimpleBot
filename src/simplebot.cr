@@ -136,7 +136,7 @@ module SimpleBot
             restart = false
             begin
                 CLIENT.run
-            rescue e : Socket::Addinfo::Error
+            rescue e : Socket::Addrinfo::Error
                 Log.error(exception: e) { "Failed to lookup hostname! Retrying..." }
                 restart = true
             end
