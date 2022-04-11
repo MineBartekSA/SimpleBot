@@ -1,6 +1,4 @@
 struct SimpleBot::Permission
-    include SimpleBot
-
     # Makes command Public. Disallowed will only be checked
     property public : Bool
     # Makes command available only to the owner of the bot (if user is in OWNER constant)
@@ -19,7 +17,7 @@ struct SimpleBot::Permission
 
     def check(user : Discord::User, partial_member : Discord::GuildMember?)
         if partial_member.nil?
-            owner = checkIfOwner user.id
+            owner = SimpleBot.check_if_owner user.id
             return owner if @ownerOnly
             return true if owner
             return false if @disallowedUsers.not_nil!.includes? user.id if !@disallowedUsers.nil?
@@ -30,7 +28,7 @@ struct SimpleBot::Permission
     end
 
     def check(member : Discord::GuildMember) : Bool
-        owner = checkIfOwner member.user.not_nil!.id
+        owner = SimpleBot.check_if_owner member.user.not_nil!.id
         return owner if @ownerOnly
         return true if owner
         return false if @disallowedUsers.not_nil!.includes? member.user.not_nil!.id if !@disallowedUsers.nil?

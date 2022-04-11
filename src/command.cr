@@ -15,7 +15,7 @@ class SimpleBot::Command
     def description : String
         "No Description provided"
     end
-    # If command takes arguments, argument string in order to present them
+    # Argument string for command presentation
     def arguments : String?
         nil
     end
@@ -30,7 +30,7 @@ class SimpleBot::Command
     # On Bot Ready
     def ready
     end
-    # On Message starting with bot prefix and command name
+    # On Message Created, and the message starts with bot prefix and command name
     def execute(message : Discord::Message, args : Array(String))
         raise Exception.new "#{self.class.name} does not implement execution!"
     end
@@ -56,8 +56,11 @@ class SimpleBot::Command
     macro inherited
         Log = ::Log.for self
         name = self.name.split("::")[-1]
-        COMMANDS << self.new "#{name[0].downcase}#{name[1..]}"
-        COMMANDS.delete COMMANDS[-1] if COMMANDS[-1].flags & Flag::Debug == Flag::Debug && {{ flag?(:release) ? true.id : false.id }}
+        instance = self.new "#{name[0].downcase}#{name[1..]}"
+        unless {{ flag?(:release) ? true.id : false.id }} && instance.flags & Flag::Debug == Flag::Debug
+            COMMANDS << instance
+            Log.debug { "New command added: #{instance.command}" }
+        end
         def self.instance : self
             @@instance.not_nil!.as self
         end

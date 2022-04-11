@@ -20,20 +20,6 @@ require "./**"
     INTENTS = Discord::Client::DEFAULT_INTENTS
 {% end %}
 
-{% for const in ["OWNER", "WEBHOOK"] %} # TODO: Try to have thin inside the module
-    def checkIf{{ const.id.capitalize }}(id : Discord::Snowflake) : Bool
-        {% if @type.constant(const).class_name == "ArrayLiteral" %}
-            i = id.to_s
-            {{ const.id }}.each do |v|
-                return true if i == v
-            end
-            false
-        {% else %}
-            id.to_s == {{ const.id }}
-        {% end %}
-    end
-{% end %}
-
 module SimpleBot
     Log = ::Log.for self
     VERSION = "0.1.0"
@@ -43,7 +29,9 @@ module SimpleBot
     CLIENT.cache = CACHE
 
     COMMANDS = Array(SimpleBot::Command).new
+    # :nodoc:
     NML = Hash(UInt64, NextMessageInfo).new
+    # :nodoc:
     NMLM = Mutex.new
 
     CLIENT.on_ready do
@@ -59,7 +47,7 @@ module SimpleBot
     end
 
     CLIENT.on_message_create do |payload|
-        next if (payload.webhook_id.nil? ? (payload.author.bot || false) : !checkIfWebhook(payload.webhook_id.not_nil!))
+        next if (payload.webhook_id.nil? ? (payload.author.bot || false) : !check_if_webhook(payload.webhook_id.not_nil!))
         begin
             next if self.on_message(payload) === true
         rescue err
@@ -125,7 +113,7 @@ module SimpleBot
         end
     end
 
-    # Start bot
+    # Starts bot session
     def start    
         Signal::INT.trap { safeHalt }
         Signal::TERM.trap { safeHalt }
@@ -143,15 +131,34 @@ module SimpleBot
         end
     end
 
+    # Hook run on the Ready Event
     def self.ready
     end
+    # Hook run on the Message Create Event
     def self.on_message(payload)
     end
+    # Hook run on SIGINT or SIGTERM signal
     def self.interupt
     end
 
+    {% for const in ["OWNER", "WEBHOOK"] %}
+    # Checks if given Snowflake is in the {{ const.id }} constant
+    def self.check_if_{{ const.id.downcase }}(id : Discord::Snowflake) : Bool
+        {% if @type.constant(const).class_name == "ArrayLiteral" %}
+            i = id.to_s
+            {{ const.id }}.each do |v|
+                return true if i == v
+            end
+            false
+        {% else %}
+            id.to_s == {{ const.id }}
+        {% end %}
+    end
+    {% end %}
+
+    # :nodoc:
     def self.sendError(err : Exception|String, author : Discord::User, channel : Discord::Snowflake, content : String = "")
-        owner = checkIfOwner author.id
+        owner = check_if_owner author.id
         errMsg = err.is_a?(Exception) ? err.as(Exception).inspect_with_backtrace : err.as(String)
         CLIENT.create_message channel, "#{content.size != 0 ? "\n#{content}" : "Error!"}#{owner ? "\n```\n#{errMsg.size > 1500 ? "#{errMsg[..1500]}\n..." : errMsg}\n```" : ""}"
     end
@@ -166,6 +173,7 @@ module SimpleBot
         end
     end
 
+    # :nodoc:
     struct NextMessageInfo
         property user, cid, data
         def initialize(@user : Discord::Snowflake, @cid : UInt32, @data = "")
