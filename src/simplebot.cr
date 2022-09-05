@@ -17,7 +17,7 @@ require "./**"
 {% end %}
 
 {% unless @type.has_constant? "INTENTS" %}
-    INTENTS = Discord::Client::DEFAULT_INTENTS
+    INTENTS = Discord::Client::DEFAULT_INTENTS + 1 << 15
 {% end %}
 
 module SimpleBot
