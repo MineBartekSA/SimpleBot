@@ -144,7 +144,7 @@ module SimpleBot
     {% for const in ["OWNER", "WEBHOOK"] %}
     # Checks if given Snowflake is in the {{ const.id }} constant
     def self.check_if_{{ const.id.downcase }}(id : Discord::Snowflake) : Bool
-        {% if @type.constant(const).class_name == "ArrayLiteral" %}
+        {% if parse_type(const).resolve.class_name == "ArrayLiteral" %}
             i = id.to_s
             {{ const.id }}.each do |v|
                 return true if i == v
